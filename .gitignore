@@ -1,6 +1,8 @@
 # rdf input
+corpora/
 
 input/
+corpora.nq
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
