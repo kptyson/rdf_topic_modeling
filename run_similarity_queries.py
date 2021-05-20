@@ -57,7 +57,7 @@ corpus = [dictionary.doc2bow(text) for text in texts]
 
 
 from gensim import models
-lsi = models.LsiModel(corpus, id2word=dictionary, num_topics=25)
+lsi = models.LsiModel(corpus, id2word=dictionary, num_topics=5)
 
 
 doc = "credit"
@@ -90,7 +90,19 @@ for i, r in search_terms_df.iterrows():
     sims = sorted(enumerate(sims), key=lambda item: -item[1])
     for doc_position, doc_score in sims:
         similarity_results.append((r.iri, r.text, doc_score, documents[doc_position]))
-sdf = pd.DataFrame(similarity_results, columns=['iri', 'term', 'score', 'similar text']).sort_values(['iri']).set_index(['iri'])
+        if 0 == len(similarity_results) % 1000000:
+            print(len(similarity_results))
+            pd.DataFrame(similarity_results,
+                         columns=['iri', 'term', 'score',
+                                  'similar text']).set_index(['iri',
+                                  'term']).to_csv('similarity_results-%d.csv' % len(similarity_results))
+sdf = pd.DataFrame(similarity_results, columns=['iri',
+                                                'term',
+                                                'score',
+                                                'similar text']).sort_values(['term',
+                                                                              'score',
+                                                                              'iri']).set_index(['iri',
+                                                                                                 'term'])
 sdf.to_csv('similarity_results.csv')
 print('Done')
 
