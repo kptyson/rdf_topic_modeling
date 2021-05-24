@@ -39,21 +39,21 @@ def gensim_setup(documents):
     corpus = [dictionary.doc2bow(text) for text in texts]
 
     from gensim import models
-    lsi = models.LsiModel(corpus, id2word=dictionary, num_topics=100)
+    lsi = models.LsiModel(corpus, id2word=dictionary, num_topics=25)
 
 
     # prompt for search term and display similarities
     similarity_results = list()
+    index = similarities.MatrixSimilarity(lsi[corpus])  # transform corpus to LSI space and index it
+    index.save('tmp/deerwester.index')
+    index = similarities.MatrixSimilarity.load('tmp/deerwester.index')
+    index.save('tmp/deerwester.index')
+    index = similarities.MatrixSimilarity.load('tmp/deerwester.index')
     while True:
         text = input('Search term: ')
         doc = text.lower()
         vec_bow = dictionary.doc2bow(doc.lower().split())
         vec_lsi = lsi[vec_bow]  # convert the query to LSI space
-        index = similarities.MatrixSimilarity(lsi[corpus])  # transform corpus to LSI space and index it
-        index.save('tmp/deerwester.index')
-        index = similarities.MatrixSimilarity.load('tmp/deerwester.index')
-        index.save('tmp/deerwester.index')
-        index = similarities.MatrixSimilarity.load('tmp/deerwester.index')
         sims = index[vec_lsi]  # perform a similarity query against the corpus
         sims = sorted(enumerate(sims), key=lambda item: -item[1])
         print(list(enumerate(sims))[:10])  # print (document_number, document_similarity) 2-tuples
